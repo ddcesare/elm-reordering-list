@@ -1,63 +1,117 @@
 module Main exposing (..)
+
+import Components.SortableList as SortableList exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing ( onClick )
-
--- component import example
-import Components.Hello exposing ( hello )
+import Html.Events exposing (onClick)
 
 
 -- APP
+
+
 main : Program Never Model Msg
 main =
-  Html.beginnerProgram { model = model, view = view, update = update }
+    Html.program
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
+
 
 
 -- MODEL
-type alias Model = Int
 
-model : Model
-model = 0
+
+type alias Model =
+    { sortableList : SortableList.Model
+    }
+
+
+init : ( Model, Cmd Msg )
+init =
+    initialModel
+        ! []
+
+
+initialModel : Model
+initialModel =
+    { sortableList =
+        { data = initialList |> List.sort
+        , drag = Nothing
+        }
+    }
+
+
+policies =
+    [ { id = "cors-policy"
+      , name = "CORS Policy"
+      , description = "CORS regulates access resource requests from outside of an originating domain. Configuration required."
+      , order = 0
+      }
+    , { id = "blah-policy"
+      , name = "BLAH Policy"
+      , description = "BLAH regulates access resource requests from outside of an originating domain. Configuration required."
+      , order = 1
+      }
+    , { id = "foo-policy"
+      , name = "FOO Policy"
+      , description = "FOO regulates access resource requests from outside of an originating domain. Configuration required."
+      , order = 2
+      }
+    ]
+
+
+initialList =
+    [ "BLAH Policy"
+    , "FOO Policy"
+    , "CORS Policy"
+    ]
+
+
+subscriptions model =
+    let
+        sortableListSub =
+            SortableList.subscriptions model.sortableList
+    in
+    Sub.batch [ Sub.map SortableListMsg sortableListSub ]
+
 
 
 -- UPDATE
-type Msg = NoOp | Increment
 
-update : Msg -> Model -> Model
+
+type Msg
+    = NoOp
+    | SortableListMsg SortableList.Msg
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  case msg of
-    NoOp -> model
-    Increment -> model + 1
+    let
+        logMsg message =
+            Debug.log "Message: " message
+    in
+    case logMsg msg of
+        NoOp ->
+            ( model, Cmd.none )
+
+        SortableListMsg sortableListMsg ->
+            let
+                ( sortableListModel, sortableListCmd ) =
+                    SortableList.update sortableListMsg model.sortableList
+            in
+            ( { model | sortableList = sortableListModel }
+            , Cmd.map SortableListMsg sortableListCmd
+            )
+
 
 
 -- VIEW
--- Html is defined as: elem [ attribs ][ children ]
--- CSS can be applied via class names or inline style attrib
+
+
 view : Model -> Html Msg
 view model =
-  div [ class "container", style [("margin-top", "30px"), ( "text-align", "center" )] ][    -- inline CSS (literal)
-    div [ class "row" ][
-      div [ class "col-xs-12" ][
-        div [ class "jumbotron" ][
-          img [ src "static/img/elm.jpg", style styles.img ] []                             -- inline CSS (via var)
-          , hello model                                                                     -- ext 'hello' component (takes 'model' as arg)
-          , p [] [ text ( "Elm Webpack Starter" ) ]
-          , button [ class "btn btn-primary btn-lg", onClick Increment ] [                  -- click handler
-            span[ class "glyphicon glyphicon-star" ][]                                      -- glyphicon
-            , span[][ text "FTW!" ]
-          ]
+    div []
+        [ Html.map SortableListMsg (SortableList.view model.sortableList)
         ]
-      ]
-    ]
-  ]
-
-
--- CSS STYLES
-styles : { img : List ( String, String ) }
-styles =
-  {
-    img =
-      [ ( "width", "33%" )
-      , ( "border", "4px solid #337AB7")
-      ]
-  }
