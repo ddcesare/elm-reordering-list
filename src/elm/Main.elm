@@ -23,6 +23,15 @@ main =
 -- MODEL
 
 
+type Policy
+    = Policy
+        { name : String
+        , version : String
+        , configuration : String
+        , description : String
+        }
+
+
 type alias Model =
     { sortableList : SortableList.Model
     }
@@ -43,22 +52,26 @@ initialModel =
     }
 
 
+policies : List Policy
 policies =
-    [ { id = "cors-policy"
-      , name = "CORS Policy"
-      , description = "CORS regulates access resource requests from outside of an originating domain. Configuration required."
-      , order = 0
-      }
-    , { id = "blah-policy"
-      , name = "BLAH Policy"
-      , description = "BLAH regulates access resource requests from outside of an originating domain. Configuration required."
-      , order = 1
-      }
-    , { id = "foo-policy"
-      , name = "FOO Policy"
-      , description = "FOO regulates access resource requests from outside of an originating domain. Configuration required."
-      , order = 2
-      }
+    [ Policy
+        { name = "apicast.policy.cors"
+        , version = "1.2.3"
+        , configuration = "{ methods = [ 'GET' ] }"
+        , description = "CORS regulates access resource requests from outside of an originating domain. Configuration required."
+        }
+    , Policy
+        { name = "BLAH Policy"
+        , version = ""
+        , configuration = ""
+        , description = "BLAH regulates access resource requests from outside of an originating domain. Configuration required."
+        }
+    , Policy
+        { name = "FOO Policy"
+        , version = ""
+        , configuration = ""
+        , description = "FOO regulates access resource requests from outside of an originating domain. Configuration required."
+        }
     ]
 
 
